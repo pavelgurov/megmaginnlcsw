@@ -11,6 +11,19 @@ PHONE = '6317247152'
 PHONE_FMT = '+1 (631) 724-7152'
 EMAIL = 'office@megmaginnlcsw.com'
 YEAR = datetime.date.today().year
+SAME_AS = ["https://www.linkedin.com/in/meg-maginn/", "https://www.instagram.com/megmaginnlcsw/", "https://www.facebook.com/megmaginn"]
+PERSON_LD = json.dumps({"@context": "https://schema.org", "@graph": [
+    {"@type": "Person", "@id": SITE + "/#meg", "name": "Meg Maginn", "honorificSuffix": "LCSW", "jobTitle": "Psychotherapist and Life Coach",
+     "url": SITE + "/", "image": SITE + "/img/meg-bio.jpg", "email": EMAIL, "telephone": PHONE_FMT, "sameAs": SAME_AS,
+     "knowsAbout": ["Eating disorders", "Trauma and PTSD", "EMDR", "Ketamine-assisted psychotherapy", "Psychedelic integration", "Couples therapy"],
+     "alumniOf": [{"@type": "CollegeOrUniversity", "name": "SUNY Albany"}, {"@type": "CollegeOrUniversity", "name": "SUNY Stony Brook"}]},
+    {"@type": "ProfessionalService", "@id": SITE + "/#practice", "name": NAME, "url": SITE + "/", "image": SITE + "/img/meg-bio.jpg",
+     "telephone": PHONE_FMT, "email": EMAIL, "founder": {"@id": SITE + "/#meg"}, "sameAs": SAME_AS, "priceRange": "$$",
+     "areaServed": ["New York", "Georgia", "Florida", "Connecticut", "Oregon"], "availableChannel": "Virtual sessions",
+     "makesOffer": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": n, "url": SITE + u}} for n, u in [
+         ("Virtual Eating Disorder Recovery Program", "/recovery/"), ("Psychotherapy / Transformational Coaching", "/psychotherapy/"),
+         ("Virtual EMDR Therapy", "/emdr/"), ("Ketamine / Psychedelic Integration Therapy", "/integration/")]]},
+    {"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": NAME, "publisher": {"@id": SITE + "/#meg"}}]})
 
 NAV = [('/', 'Home'), ('/offerings/', 'Offerings'), ('/bio/', 'Bio'), ('/contact/', 'Contact'), ('/resources/', 'Resources')]
 
@@ -61,7 +74,10 @@ def page(path, title, desc, body, cur=None, og_image='/img/meg-bio.jpg', extra_h
 <meta name="theme-color" content="#fafafa">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preload" href="/fonts/epilogue.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/pontano-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
+<link rel="alternate" type="application/rss+xml" title="{NAME} — Resources" href="{SITE}/resources/feed.xml">
 {extra_head}</head>
 <body>
 {header(cur)}
@@ -143,7 +159,7 @@ filters = '<li><a href="/resources/" data-cat="" aria-current="true">All</a></li
 listing = f'''<section class="section tight"><div class="wrap call-row"><a class="btn" href="tel:{PHONE}">Call Now</a></div></section>
 <section class="section" style="padding-top:0">
   <div class="wrap">
-    <h1 class="visually-hidden" style="position:absolute;left:-999px">Resources</h1>
+    <h1 class="vh">Resources</h1>
     <ul class="filters" id="filters">{filters}</ul>
     <div class="posts" id="posts">
 {''.join(post_card(m) for m in posts)}
@@ -178,7 +194,20 @@ for path, frag, title, desc, og in PAGES:
     if path == '/404.html':  # GitHub Pages serves /404.html for missing URLs
         page(path, title, desc, body, og_image=og, out=ROOT / '404.html')
     else:
-        urls.append(page(path, title, desc, body, cur=cur_of.get(path, path), og_image=og))
+        crumbs = [("Home", "/")] + ([("Offerings", "/offerings/")] if path in cur_of else []) + ([(title, path)] if path != '/' else [])
+        bc = json.dumps({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + u} for i, (n, u) in enumerate(crumbs)]})
+        head = f'<script type="application/ld+json">{PERSON_LD}</script>\n' + (f'<script type="application/ld+json">{bc}</script>\n' if len(crumbs) > 1 else '')
+        urls.append(page(path, title, desc, body, cur=cur_of.get(path, path), og_image=og, extra_head=head))
+
+# ---------- RSS ----------
+def rfc(d): return datetime.datetime.fromisoformat(d).strftime('%a, %d %b %Y 09:00:00 GMT')
+items = ''.join(f'''  <item><title>{html.escape(m['title'])}</title><link>{SITE}/resources/{m['slug']}/</link><guid>{SITE}/resources/{m['slug']}/</guid>
+    <pubDate>{rfc(m['date'])}</pubDate><category>{html.escape(m['category'])}</category><description>{html.escape(m['excerpt'])}</description></item>\n''' for m in posts)
+(ROOT / 'resources' / 'feed.xml').write_text(f'''<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>{NAME} — Resources</title><link>{SITE}/resources/</link><description>Articles by Meg Maginn, L.C.S.W</description><language>en-us</language>
+{items}</channel></rss>
+''', encoding='utf-8')
 
 # ---------- sitemap / robots ----------
 today = datetime.date.today().isoformat()

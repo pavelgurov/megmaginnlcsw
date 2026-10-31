@@ -1,13 +1,7 @@
-// Shared behaviour: mobile menu, testimonial carousel, resources filter, contact form.
+// Shared behaviour: mobile menu, testimonial carousel, resources filter.
 (function () {
   'use strict';
 
-  // ---- Contact form backend -------------------------------------------------
-  // Create a free form at https://formspree.io (or Basin / Web3Forms) and paste its
-  // endpoint here, e.g. 'https://formspree.io/f/abcdwxyz'. Empty = fall back to a
-  // pre-filled mailto: so the form still works on day one.
-  var FORM_ENDPOINT = '';
-  var EMAIL = 'office@megmaginnlcsw.com';
 
   // ---- mobile menu ----
   var top = document.getElementById('top');
@@ -72,28 +66,4 @@
     apply(new URLSearchParams(location.search).get('c') || '');
   }
 
-  // ---- contact form ----
-  var form = document.getElementById('contact-form');
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (!form.checkValidity()) { form.reportValidity(); return; }
-      var f = new FormData(form);
-      if (!FORM_ENDPOINT) {
-        var body = 'Name: ' + f.get('name') + '\nEmail: ' + f.get('email') + '\nLocation/State: ' + f.get('location') + '\n\nI want to...\n' + f.get('message');
-        location.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('Website inquiry from ' + f.get('name')) + '&body=' + encodeURIComponent(body);
-        return;
-      }
-      var btn = form.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Sending…';
-      fetch(FORM_ENDPOINT, { method: 'POST', body: f, headers: { Accept: 'application/json' } })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(function () {
-          form.innerHTML = '<p class="ok"><strong>Thank you.</strong> Your message was sent; Meg will get back to you shortly.</p>';
-        })
-        .catch(function () {
-          btn.disabled = false; btn.textContent = 'Send';
-          alert('Sorry, the message could not be sent. Please e-mail ' + EMAIL + ' or call instead.');
-        });
-    });
-  }
 })();

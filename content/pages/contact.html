@@ -1,7 +1,7 @@
 <div class="banner"><img src="/img/banner-contact.jpg" alt="" width="1800" height="893" fetchpriority="high"></div>
 
 <section class="section light">
-  <div class="wrap contact">
+  <div class="wrap contact single">
     <div>
       <h1>Let’s get in touch</h1>
       <p>Feeling overwhelmed, stuck, or uncertain about your path forward can be a challenging and isolating experience. You don’t have to navigate those changes alone.</p>
@@ -11,19 +11,5 @@
         <a class="btn ghost" href="sms:{{PHONE}}">Send a Text</a>
       </div>
     </div>
-    <!-- Form backend: set FORM_ENDPOINT in site.js (Formspree / Basin / Web3Forms). Until then the form opens a pre-filled e-mail. -->
-    <form class="form" id="contact-form" method="post" action="#" novalidate>
-      <label for="f-name">Name <small>(required)</small></label>
-      <input id="f-name" name="name" type="text" placeholder="What is your name?" required autocomplete="name">
-      <label for="f-email">Email <small>(required)</small></label>
-      <input id="f-email" name="email" type="email" placeholder="What is your e-mail?" required autocomplete="email">
-      <label for="f-loc">Location/State <small>(required)</small></label>
-      <input id="f-loc" name="location" type="text" placeholder="Where do you live?" required autocomplete="address-level1">
-      <label for="f-msg">I want to… <small>(required)</small></label>
-      <textarea id="f-msg" name="message" placeholder="(schedule a session, get more info, ask a question, etc.)" required></textarea>
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-      <div class="send"><button class="btn" type="submit">Send</button></div>
-      <p class="note">Please don’t include sensitive medical details here; we’ll talk privately once we connect.</p>
-    </form>
   </div>
 </section>

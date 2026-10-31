@@ -15,8 +15,5 @@ python3 -m http.server 8791     # http://localhost:8791/
 ```
 Commit the generated files too; GitHub Pages serves the repo as-is (`.nojekyll`).
 
-## Contact form
-`site.js` → `FORM_ENDPOINT`. Empty: the form opens a pre-filled e-mail to office@megmaginnlcsw.com. Set it to a Formspree/Basin/Web3Forms endpoint to receive submissions directly.
-
 ## Domain
 Add a `CNAME` file containing `www.megmaginnlcsw.com` when the DNS is moved off Squarespace.
